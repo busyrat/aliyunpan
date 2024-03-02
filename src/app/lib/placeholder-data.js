@@ -18744,6 +18744,18 @@ const files = [
   },
 ];
 
+const feeds = [
+  {
+    share_id: "uh4ZJGD3SDh",
+    name: "豆瓣TOP250",
+  },
+  {
+    share_id: "9oFC9Z5Fy8h",
+    name: "影视"
+  }
+]
+
 module.exports = {
   files,
+  feeds,
 };

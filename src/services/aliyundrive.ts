@@ -1,6 +1,7 @@
+import { File } from "@/app/lib/definitionis";
 import axios from "axios";
 
-export const getToken = async (share_id: string) => {
+export const getToken = async (share_id: string): Promise<string> => {
   const url = "https://api.aliyundrive.com/v2/share_link/get_share_token";
   const data = {
     share_id,
@@ -11,7 +12,7 @@ export const getToken = async (share_id: string) => {
   return res.data.share_token;
 };
 
-export const getList = async (share_id: string, token: string, pid: string = 'root') => {
+export const getList = async (share_id: string, token: string, pid: string = 'root'): Promise<File[]> => {
   const url = "https://api.aliyundrive.com/adrive/v2/file/list_by_share";
   const data = {
     share_id,

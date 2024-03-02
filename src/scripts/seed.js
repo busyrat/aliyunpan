@@ -1,6 +1,7 @@
 const { db } = require('@vercel/postgres');
 const {
-  files
+  files,
+  feeds
 } = require('../app/lib/placeholder-data.js');
 
 async function seedFiles(client) {
@@ -52,10 +53,50 @@ async function seedFiles(client) {
   }
 }
 
+async function seedFeeds(client) {
+  try {
+    await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
+    // Create the "feeds" table if it doesn't exist
+    const createTable = await client.sql`
+      DROP TABLE IF EXISTS feeds;
+      CREATE TABLE feeds (
+          name VARCHAR(255),
+          share_id VARCHAR(255) UNIQUE,
+          id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `;
+
+    console.log(`Created "feeds" table`);
+
+    // Insert data into the "feeds" table
+    const insertedFeeds = await Promise.all(
+      feeds.map(
+        (item) => client.sql`
+        INSERT INTO feeds (name, share_id)
+        VALUES (${item.name}, ${item.share_id})
+        ON CONFLICT (share_id) DO NOTHING;
+      `,
+      ),
+    );
+
+    console.log(`Seeded ${insertedFeeds.length} feeds`);
+
+    return {
+      createTable,
+      feeds: insertedFeeds,
+    };
+  } catch (error) {
+    console.error('Error seeding files:', error);
+    throw error;
+  }
+}
+
 async function main() {
   const client = await db.connect();
 
   await seedFiles(client);
+  await seedFeeds(client);
 
   await client.end();
 }
