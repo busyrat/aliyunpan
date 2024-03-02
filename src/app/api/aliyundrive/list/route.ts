@@ -1,6 +1,16 @@
 import { getList, getToken } from "@/services/aliyundrive";
 import { withRetry } from "@/app/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
+import { sql } from "@vercel/postgres";
+// import { insertFile } from "@/scripts/seed"
+
+function insertFile(sql: any, file: any) {
+  return sql`
+    INSERT INTO files (name, drive_id, domain_id, file_id, share_id, type, created_at, updated_at, parent_file_id, file_extension, mime_type, mime_extension, size, category, punish_flag)
+    VALUES (${file.name}, ${file.drive_id}, ${file.domain_id}, ${file.file_id}, ${file.share_id}, ${file.type}, ${file.created_at}, ${file.updated_at}, ${file.parent_file_id},  ${file.file_extension}, ${file.mime_type}, ${file.mime_extension}, ${file.size}, ${file.category}, ${file.punish_flag})
+    ON CONFLICT (file_id) DO NOTHING;
+  `
+}
 
 async function treeShare(
   all_files: any[] = [],
@@ -12,7 +22,13 @@ async function treeShare(
   const file_list = await _getList(share_id, token, parent_file_id);
   for (const file of file_list) {
     all_files.push(file);
-    console.log(file.name);
+    
+    try {
+      await insertFile(sql, file)
+    } catch (error) {
+      console.log('insert file failed!');
+    }
+
     if (file.type === "folder") {
       await treeShare(all_files, share_id, token, file.file_id);
     }
@@ -28,6 +44,7 @@ export async function GET(req: NextRequest) {
 
     const all_files: any[] = [];
     await treeShare(all_files, share_id, share_token);
+
 
     return NextResponse.json({ error: 0, message: all_files });
   } else {

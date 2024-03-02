@@ -17,9 +17,8 @@ export const getList = async (share_id: string, token: string, pid: string = 'ro
   const data = {
     share_id,
     parent_file_id: pid,
-    limit: 100,
-    order_by: "name",
-    order_direction: "DESC",
+    limit: 200,
+    order_by: "name"
   };
 
   const headers = {
