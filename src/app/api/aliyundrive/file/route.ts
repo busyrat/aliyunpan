@@ -1,12 +1,12 @@
-import { getList, getToken } from "@/services/aliyundrive";
+import { fetchFile } from "@/app/lib/data";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
-  const id = req.nextUrl.searchParams.get('share_id')
+  const share_id = req.nextUrl.searchParams.get('share_id')
+  const id = req.nextUrl.searchParams.get('id') || 'root'
 
-  if (id) {
-    const token = await getToken(id)
-    const items = await getList(id, token)
+  if (share_id) {
+    const items = await fetchFile(share_id, id)
     
     return NextResponse.json({ error: 0, message: items })
   } else {
