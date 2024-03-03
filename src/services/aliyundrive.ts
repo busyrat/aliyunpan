@@ -1,4 +1,5 @@
 import { File } from "@/app/lib/definitionis";
+import { withRetry } from "@/app/lib/utils";
 import axios from "axios";
 
 export const getToken = async (share_id: string): Promise<string> => {
@@ -27,8 +28,16 @@ export const getList = async (share_id: string, token: string, pid: string = 'ro
     "X-Canary": "client=web,app=share,version=v2.3.1",
     "Sec-Fetch-Mode": "cors"
   };
-  
-  const res = await axios.post(url, data, { headers });
 
-  return res.data.items;
+  let marker
+  let items: File[] = []
+
+  const post = withRetry.bind(null, axios.post, 5, 10)
+  do {
+    const res: any = await post(url, { ...data, marker }, { headers });
+    items = items.concat(res.data.items)
+    marker = res.data.next_marker
+  } while (marker);
+
+  return items;
 };

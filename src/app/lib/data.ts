@@ -25,7 +25,8 @@ export async function fetchFile(share_id: string, parent_file_id: string = 'root
       SELECT * 
       FROM files
       WHERE parent_file_id = ${pid}
-      AND share_id = ${sid};
+      AND share_id = ${sid}
+      ORDER BY name ASC;
     `;
     
     return data.rows;
