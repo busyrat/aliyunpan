@@ -9,15 +9,19 @@ type DirectoryTreeProps = GetProps<typeof Tree.DirectoryTree>;
 const { DirectoryTree } = Tree;
 
 const FeedsTree = ({ data }: { data: TreeDataNode[] }) => {
-  const { replace } = useRouter()
+  const router = useRouter()
 
   const onSelect: DirectoryTreeProps['onSelect'] = (keys, info: any) => {
-    console.log('Trigger Select', keys, info);
-    replace(`/dashboard/feed/${info.node.share_id}`);
+    const { share_id, file_id } = info.node
+    let key = share_id
+    if (file_id) {
+      key += `_${file_id}`
+    }
+    router.push(`/dashboard/feed/${key}`);
   };
 
   const onExpand: DirectoryTreeProps['onExpand'] = (keys, info) => {
-    console.log('Trigger Expand', keys, info);
+    // console.log('Trigger Expand', keys, info);
   };
 
   return (
