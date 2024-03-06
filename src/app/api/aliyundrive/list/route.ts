@@ -21,7 +21,7 @@ async function treeShare(
   parent_file_id = "root",
 ) {
   const _getList = withRetry.bind(null, getList, 5, 10)
-  const file_list = await _getList(share_id, token, parent_file_id);
+  const file_list = await _getList(token, share_id, parent_file_id);
 
   all_files.concat(file_list);
   try {

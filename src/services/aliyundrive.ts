@@ -13,7 +13,7 @@ export const getToken = async (share_id: string): Promise<string> => {
   return res.data.share_token;
 };
 
-export const getList = async (share_id: string, token: string, pid: string = 'root'): Promise<File[]> => {
+export const getList = async (token: string, share_id: string, pid: string = 'root'): Promise<File[]> => {
   const url = "https://api.aliyundrive.com/adrive/v2/file/list_by_share";
   const data = {
     share_id,
