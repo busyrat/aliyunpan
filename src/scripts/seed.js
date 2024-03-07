@@ -61,7 +61,8 @@ async function seedFeeds(client) {
       DROP TABLE IF EXISTS feeds;
       CREATE TABLE feeds (
           name VARCHAR(255),
-          share_id VARCHAR(255) UNIQUE,
+          share_id VARCHAR(255),
+          file_id VARCHAR(255) UNIQUE,
           id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )

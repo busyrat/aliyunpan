@@ -1,0 +1,11 @@
+.ant-tree-treenode {
+  .feed-icon {
+    display: none;
+  }
+}
+
+.ant-tree-treenode:hover {
+  .feed-icon {
+    display: inline-block;
+  }
+}

@@ -10,7 +10,8 @@ datasource db {
 
 model feeds {
   name       String?   @db.VarChar(255)
-  share_id   String?   @unique @db.VarChar(255)
+  share_id   String?   @db.VarChar(255)
+  file_id    String?   @unique @db.VarChar(255)
   id         String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   created_at DateTime? @default(now()) @db.Timestamp(6)
 }
