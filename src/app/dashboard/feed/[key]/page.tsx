@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import FileTree from '@/app/ui/dashboard/fileTree/index';
+import FileTree from '@/app/ui/dashboard/fileTree/table';
 
 export const metadata: Metadata = {
   title: 'share',
