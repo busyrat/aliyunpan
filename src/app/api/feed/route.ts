@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const { share_id, file_id, name } = await req.json()
+  const { share_id, file_id, parent_file_id, name } = await req.json()
 
   if (!share_id) {
     return NextResponse.json({ error: -1, message: "请传入share_id" });
@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
   let message
 
   try {
-    message = await addFeed(share_id, file_id, name)
+    message = await addFeed(share_id, file_id, parent_file_id, name)
   } catch (error) {
     return NextResponse.json({ error: -1, message: '请传入完整的参数' });
   }

@@ -18,10 +18,10 @@ type FileTreeProps = {
 }
 
 function FileTreeNode(props: { node: any }) {
-  const { share_id, file_id, title } = props.node
+  const { share_id, file_id, parent_file_id, title } = props.node
 
   const handleFeed = async () => {    
-    await postFeed(share_id, file_id, title)
+    await postFeed(share_id, file_id, parent_file_id, title)
   }
 
   return <div className="file-tree-node inline-block">

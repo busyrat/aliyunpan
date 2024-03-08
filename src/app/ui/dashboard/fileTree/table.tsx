@@ -4,7 +4,8 @@ import { Space, Switch, Table } from 'antd';
 import type { TableColumnsType, TableProps } from 'antd';
 import { File } from '@/app/lib/definitionis';
 import { getList, postFeed } from '@/services/dashboard';
-import { FolderOutlined, FileOutlined, HeartOutlined } from '@ant-design/icons';
+import { FolderOutlined, FileOutlined, HeartOutlined, HeartFilled } from '@ant-design/icons';
+import { feeds as Feed } from '@prisma/client';
 
 type TableRowSelection<T> = TableProps<T>['rowSelection'];
 
@@ -15,7 +16,8 @@ interface DataType extends File {
 }
 
 type FileTreeProps = {
-  feedCode: string
+  feedCode: string,
+  feeds: Feed[]
 }
 
 const App = (props: FileTreeProps) => {
@@ -23,8 +25,8 @@ const App = (props: FileTreeProps) => {
   const [tree, setTree] = useState<any[]>([])
 
   const handleFeed = useCallback(async (file: File) => {
-    const { share_id,  file_id, name = '' } = file
-    await postFeed(share_id, file_id, name)
+    const { share_id,  file_id, name, parent_file_id } = file
+    await postFeed(share_id, file_id, parent_file_id, name)
   }, [])
 
   const columns: TableColumnsType<DataType> = useMemo(() => {
@@ -53,13 +55,16 @@ const App = (props: FileTreeProps) => {
         width: '10%',
         key: 'handle',
         render: (text, record) => {
-          return <>
-            <HeartOutlined onClick={handleFeed.bind(null ,record)} />
-          </>
+          const isFeed = props.feeds.some((f: Feed) => f.file_id === record.file_id)
+          if (isFeed) {
+            return <HeartFilled style={{ color: 'red' }} />
+          } else {
+            return <HeartOutlined onClick={handleFeed.bind(null ,record)} />
+          }
         }
       },
     ];
-  }, [handleFeed])
+  }, [handleFeed, props.feeds])
 
   useEffect(() => {
     (async () => {
