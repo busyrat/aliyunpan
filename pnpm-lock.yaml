@@ -40,6 +40,9 @@ dependencies:
     version: 18.2.0(react@18.2.0)
 
 devDependencies:
+  '@prisma/nextjs-monorepo-workaround-plugin':
+    specifier: ^5.10.2
+    version: 5.10.2
   '@types/lodash':
     specifier: ^4.14.202
     version: 4.14.202
@@ -449,6 +452,10 @@ packages:
     dependencies:
       '@prisma/debug': 5.10.2
     dev: false
+
+  /@prisma/nextjs-monorepo-workaround-plugin@5.10.2:
+    resolution: {integrity: sha512-eZnYMgmiZfW3beqvkA+Xerubi9J//S/CSGevzbd+E48sKSjiRysKq91PWcdoENOSYZirdsAdGCx+q+sgXxqR9w==}
+    dev: true
 
   /@rc-component/color-picker@1.5.2(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-YJXujYzYFAEtlXJXy0yJUhwzUWPTcniBZto+wZ/vnACmFnUTNR7dH+NOeqSwMMsssh74e9H5Jfpr5LAH2PYqUw==}
