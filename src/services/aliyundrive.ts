@@ -41,3 +41,24 @@ export const getList = async (token: string, share_id: string, pid: string = 'ro
 
   return items;
 };
+
+export const getFile = async (token: string, share_id: string, file_id: string): Promise<File> => {
+  const url = "https://api.aliyundrive.com/adrive/v2/file/get_by_share";
+  const data = {
+    share_id,
+    file_id,
+    drive_id: '',
+    fields: '*'
+  };
+
+  const headers = {
+    "X-Share-Token": token,
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+    "X-Canary": "client=web,app=share,version=v2.3.1",
+    "Sec-Fetch-Mode": "cors"
+  };
+
+  const res: any = await axios.post(url, data, { headers });
+
+  return res.data
+}

@@ -57,6 +57,7 @@ const FilesTable = ({ file_id, feedMap }: FileTreeProps) => {
         key: 'handle',
         render: (text, record) => {
           const isFeed = !!feedMap[record.file_id]
+          
           if (isFeed) {
             return <HeartFilled style={{ color: 'red' }} />
           } else {

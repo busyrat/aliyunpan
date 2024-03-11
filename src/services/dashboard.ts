@@ -4,6 +4,18 @@ import prisma from "@/app/lib/db";
 import _ from "lodash";
 import { getList as getListAliyundrive, getToken } from "@/services/aliyundrive";
 
+export const getFile = async (share_id: string, file_id: string) => {
+  let res
+  try {
+    const res = await axios.get('/api/aliyundrive/file', { params: { share_id, file_id } })
+    return res.data.message
+  } catch (error) {
+    console.log(error);
+    
+    return []
+  }
+}
+
 export const getList = async (share_id: string, file_id: string) => {
   let res
   try {
