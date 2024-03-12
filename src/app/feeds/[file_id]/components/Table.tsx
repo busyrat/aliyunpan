@@ -2,10 +2,9 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Table } from 'antd';
 import type { TableColumnsType } from 'antd';
-import { File } from '@/app/lib/definitionis';
-import { getList, postFeed } from '@/services/dashboard';
 import { FolderOutlined, FileOutlined, HeartOutlined, HeartFilled } from '@ant-design/icons';
-import { feeds as Feed } from '@prisma/client';
+import { Feed, File } from '@/app/lib/db';
+import { createFeed, getList } from '@/app/lib/action';
 
 interface DataType extends File {
   key: React.ReactNode;
@@ -24,11 +23,6 @@ const FilesTable = ({ file_id, feedMap }: FileTreeProps) => {
   const root = feedMap[file_id]
   const { share_id } = root
   const [tree, setTree] = useState<any[]>([])
-
-  const handleFeed = useCallback(async (file: File) => {
-    const { share_id,  file_id, name, parent_file_id } = file
-    await postFeed(share_id, file_id, parent_file_id, name)
-  }, [])
 
   const columns: TableColumnsType<DataType> = useMemo(() => {
     return [
@@ -61,16 +55,16 @@ const FilesTable = ({ file_id, feedMap }: FileTreeProps) => {
           if (isFeed) {
             return <HeartFilled style={{ color: 'red' }} />
           } else {
-            return <HeartOutlined onClick={handleFeed.bind(null ,record)} />
+            return <HeartOutlined onClick={() => createFeed(record)} />
           }
         }
       },
     ];
-  }, [handleFeed, feedMap])
+  }, [feedMap])
 
   useEffect(() => {
     (async () => {
-      const files: File[] = await getList(share_id as string, file_id)
+      const files: File[] = await getList(share_id, file_id)
       const _tree = files.map((file, index) => ({
         key: file.file_id,
         pos: [index],

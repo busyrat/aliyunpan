@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import { sql } from '@vercel/postgres';
-import { feeds as Feed } from '@prisma/client';
 import FilesTable from './components/Table';
+import { Feed } from '@/app/lib/db';
 
 export const metadata: Metadata = {
   title: 'share',
@@ -30,14 +30,10 @@ export default async function Page({ params }: PageProps) {
 
   const { rows } = await sql<Feed>`
     SELECT * FROM feeds
-    WHERE file_id = ${file_id}
+    WHERE file_id = ${file_id} OR parent_file_id = ${file_id}
   `
 
-  const { rows: prows } = await sql<Feed>`
-    SELECT * FROM feeds
-    WHERE parent_file_id = ${file_id}
-  `
-  const feedMap = rows.concat(prows).reduce((acc, cur) => ({...acc, [cur.file_id as string]: cur}), {})
+  const feedMap = rows.reduce((acc, cur) => ({...acc, [cur.file_id]: cur}), {})
   
   return <FilesTable file_id={file_id} feedMap={feedMap}/>
 }

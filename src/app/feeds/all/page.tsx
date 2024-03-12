@@ -1,14 +1,14 @@
 import { Metadata } from 'next';
 import { sql } from '@vercel/postgres';
-import { feeds, files } from '@prisma/client';
 import FeedsTable from './components/Table';
+import { Feed, File } from '@/app/lib/db';
 
 export const metadata: Metadata = {
   title: '全部订阅',
 };
 
-export interface Row extends feeds {
-  mixes: files[]
+export interface Row extends Feed {
+  mixes: File[]
 }
 
 export default async function Page() {

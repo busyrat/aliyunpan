@@ -50,8 +50,7 @@ export const getFeed = async (share_id: string, file_id: string) => {
 }
 
 export const addFeed = async (share_id: string, file_id: string, parent_file_id: string, name: string) => {  
-  const token = await getToken(share_id);
-  const list = await getListAliyundrive(token, share_id, file_id);
+  const list = await getListAliyundrive(share_id, file_id);
   
   try {
     await prisma.files.createMany({

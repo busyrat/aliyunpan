@@ -1,4 +1,4 @@
-import { getList, getToken } from "@/services/aliyundrive";
+import { getList } from "@/services/aliyundrive";
 import { withRetry } from "@/app/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
 import { sql } from "@vercel/postgres";
@@ -17,11 +17,10 @@ function insertFile(sql: any, file: any) {
 async function treeShare(
   all_files: any[] = [],
   share_id: string,
-  token: string,
   parent_file_id = "root",
 ) {
   const _getList = withRetry.bind(null, getList, 5, 10)
-  const file_list = await _getList(token, share_id, parent_file_id);
+  const file_list = await _getList(share_id, parent_file_id);
 
   all_files.concat(file_list);
   try {
@@ -35,7 +34,7 @@ async function treeShare(
 
   for (const file of file_list) {
     if (file.type === "folder") {
-      await treeShare(all_files, share_id, token, file.file_id);
+      await treeShare(all_files, share_id, file.file_id);
       console.log('insert success!', file.name);
     }
   }
@@ -45,11 +44,9 @@ export async function GET(req: NextRequest) {
   const share_id = req.nextUrl.searchParams.get("share_id");
 
   if (share_id) {
-    const share_token = await getToken(share_id);
-    console.log(share_token);
 
     const all_files: any[] = [];
-    await treeShare(all_files, share_id, share_token);
+    await treeShare(all_files, share_id);
     // const all_files = await prisma.files.count({})
 
     return NextResponse.json({ error: 0, message: all_files });

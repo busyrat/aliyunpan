@@ -1,12 +1,9 @@
 'use client'
 import React, { useEffect, useMemo, useState } from 'react';
-import { Button, Form, Input, Modal, Table, type FormInstance } from 'antd';
+import { Button, Form, Input, Modal, Table, Tag, type FormInstance } from 'antd';
 import type { TableColumnsType } from 'antd';
-
-import { feeds as Feed } from '@prisma/client';
 import Link from 'next/link';
-import { createFeed, getFeed, getFeedDiff, refreshFeed, removeFeed } from '@/app/lib/action';
-import { getFile, getList } from '@/services/dashboard';
+import { createFeed, getFeed, getFeedDiff, getFile, getList, refreshFeed, removeFeed } from '@/app/lib/action';
 import { Row } from '../page';
 
 type FeedsProps = {
@@ -103,7 +100,9 @@ const FeedsTable = (props: FeedsProps) => {
         columns={columns}
         dataSource={feeds.map(f => ({key: f.file_id, ...f}))}
         expandable={{
-          expandedRowRender: (record) => <p style={{ margin: 0 }}>{record.mixes.map(f => f.name).join(',')}</p>,
+          expandedRowRender: (record) => <p style={{ margin: 0 }}>
+            {record.mixes.map(f => <Tag key={f.file_id}>{f.name}</Tag>)}
+          </p>,
           rowExpandable: (record) => !!record.mixes.length,
           onExpand: async (isExpand, record) => {
             console.log(record);

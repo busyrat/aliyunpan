@@ -9,8 +9,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: -1, message: "请传入share_id" });
   }
 
-  const token = await getToken(share_id);
-  const list = await getList(token, share_id, file_id);
+  const list = await getList(share_id, file_id);
   
   return NextResponse.json({ error: 0, message: list });
 }
