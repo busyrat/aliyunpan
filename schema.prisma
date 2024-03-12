@@ -33,4 +33,5 @@ model files {
   size           BigInt?
   category       String?   @db.VarChar(50)
   punish_flag    Int?
+  read_flag      Int?
 }
