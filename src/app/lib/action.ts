@@ -15,7 +15,7 @@ export async function createFeed(values: any) {
     VALUES (${name}, ${share_id}, ${file_id}, ${parent_file_id})
     ON CONFLICT (file_id) DO NOTHING;
   `
-  await refreshFeed(file_id)
+  await createFile(file_id)
 
   revalidatePath('/feeds/all');
   redirect('/feeds/all');
@@ -30,7 +30,11 @@ export async function removeFeed(id: string) {
   redirect('/feeds/all');
 }
 
-export async function refreshFeed(file_id: string) {
+export async function createFile(file_id: string) {
+  await refreshFeed(file_id, true)
+}
+
+export async function refreshFeed(file_id: string, isCreate: boolean = false) {
   const feed = await getFeed(file_id)
   
   if (!feed) return false
@@ -40,7 +44,10 @@ export async function refreshFeed(file_id: string) {
   const token = await getToken(share_id);
   const list = await getList(token, share_id, file_id);
   const r = await prisma.files.createMany({
-    data: list.map((file: any) => _.pick(file, ['name', 'drive_id', 'domain_id', 'file_id', 'share_id', 'type', 'created_at', 'updated_at', 'parent_file_id', 'file_extension', 'mime_type', 'mime_extension', 'size', 'category', 'punish_flag'])),
+    data: list.map((file: any) => ({
+      read_flag: isCreate ? 1 : null,
+      ..._.pick(file, ['name', 'drive_id', 'domain_id', 'file_id', 'share_id', 'type', 'created_at', 'updated_at', 'parent_file_id', 'file_extension', 'mime_type', 'mime_extension', 'size', 'category', 'punish_flag'])
+    })),
     skipDuplicates: true
   })
   console.log(`file add ${r.count}`);

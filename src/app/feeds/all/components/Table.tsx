@@ -104,7 +104,7 @@ const FeedsTable = (props: FeedsProps) => {
         dataSource={feeds.map(f => ({key: f.file_id, ...f}))}
         expandable={{
           expandedRowRender: (record) => <p style={{ margin: 0 }}>{record.mixes.map(f => f.name).join(',')}</p>,
-          rowExpandable: () => true,
+          rowExpandable: (record) => !!record.mixes.length,
           onExpand: async (isExpand, record) => {
             console.log(record);
           },
