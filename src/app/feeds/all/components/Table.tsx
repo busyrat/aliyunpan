@@ -3,8 +3,12 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Button, Form, Input, Modal, Table, Tag, type FormInstance } from 'antd';
 import type { TableColumnsType } from 'antd';
 import Link from 'next/link';
-import { createFeed, getFeed, getFeedDiff, getFile, getList, refreshFeed, removeFeed } from '@/app/lib/action';
-import { Row } from '../page';
+import { createFeed, getFeed, getFeedDiff, getFeedWithRead, getFile, getList, refreshFeed, removeFeed } from '@/app/lib/action';
+import { Feed, File } from '@/app/lib/db';
+
+export interface Row extends Feed {
+  mixes: File[]
+}
 
 type FeedsProps = {
   feeds: Row[]
@@ -19,8 +23,16 @@ type FieldType = {
 
 const { Item: FromItem } = Form
 
-const FeedsTable = (props: FeedsProps) => {
-  const { feeds } = props
+const FeedsTable = () => {
+  const [feeds, setFeeds] = useState<Row[]>([])
+
+  useEffect(() => {
+    (async () => {
+      const feeds = await getFeedWithRead()
+      setFeeds(feeds as Row[])
+    })()
+  }, [])
+
   const columns: TableColumnsType<Row> = useMemo(() => {
     return [
       {

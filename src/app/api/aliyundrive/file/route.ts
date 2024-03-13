@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getFile, getToken } from "@/services/aliyundrive";
+import { getFile } from "@/services/aliyundrive";
 
 export async function GET(req: NextRequest) {
   const share_id = req.nextUrl.searchParams.get("share_id");

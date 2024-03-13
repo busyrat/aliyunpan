@@ -1,9 +1,0 @@
-.col {
-  max-width: 200px;
-  min-width: 100px;
-  > div {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-}
