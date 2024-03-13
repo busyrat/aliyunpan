@@ -34,6 +34,20 @@ export async function createFile(file_id: string) {
   await refreshFeed(file_id, true)
 }
 
+export async function refreshAllFeeds(): Promise<number> {
+  const feeds = await getAllFeeds()
+  const all = await Promise.all(feeds.map((feed) => refreshFeed(feed.file_id) ))
+  
+  let res
+  if (all.every(i => i > -1)) {
+    res = all.reduce((a, c) => a + c, 0)
+  } else {
+    res = -1
+  }
+
+  return res
+}
+
 export async function refreshFeed(file_id: string, isCreate: boolean = false): Promise<number> {
   try {
     const feed = await getFeed(file_id)
@@ -63,6 +77,22 @@ export async function getFiles(parent_file_id: string) {
     WHERE parent_file_id = ${parent_file_id};
   `
   return rows
+}
+
+export async function updateFileRead(file_id: string) {
+  await sql`
+    UPDATE files
+    SET read_flag = 1
+    WHERE file_id = ${file_id};
+  `
+}
+
+export async function updateAllFilesRead() {
+  await sql`
+    UPDATE files
+    SET read_flag = 1
+    WHERE 1 = 1;
+  `
 }
 
 export async function getList(share_id: string, file_id: string) {

@@ -1,10 +1,11 @@
 'use client'
 import React, { useEffect, useMemo, useState } from 'react';
-import { Button, Form, Input, Modal, Table, Tag, type FormInstance } from 'antd';
+import { Button, Form, Input, Modal, Table, Tag, message, type FormInstance } from 'antd';
 import type { TableColumnsType } from 'antd';
 import Link from 'next/link';
-import { createFeed, getFeed, getFeedDiff, getFeedWithRead, getFile, getList, refreshFeed, removeFeed } from '@/app/lib/action';
+import { createFeed, getFeed, getFeedDiff, getFeedWithRead, getFile, getList, refreshAllFeeds, refreshFeed, removeFeed, updateFileRead } from '@/app/lib/action';
 import { Feed, File } from '@/app/lib/db';
+import { PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 
 export interface Row extends Feed {
   mixes: File[]
@@ -102,10 +103,42 @@ const FeedsTable = () => {
     setIsModalOpen(false);
   };
 
+  const [loading, setLoading] = useState(false)
+  const [messageApi, contextHolder] = message.useMessage();
+
+  const handleRefresh = async () => {
+    setLoading(true)
+    const r = await refreshAllFeeds()
+    if (~r) {
+      messageApi.open({
+        type: 'success',
+        content: '更新成功',
+      });
+    } else {
+      messageApi.open({
+        type: 'error',
+        content: '更新失败',
+      });
+    }
+    setLoading(false)
+  }
+
+  const handleMix = async (record: Row, file: File) => {
+    feeds.forEach(feed => {
+      if (feed.file_id === record.file_id) {
+        feed.mixes = record.mixes.filter(f => f.file_id !== file.file_id)
+      }
+    })
+    await updateFileRead(file.file_id)
+    setFeeds(feeds.concat([]))
+  }
+
   return (
     <div className="w-full">
+      {contextHolder}
       <div className="mb-4">
-        <Button onClick={showModal}>新增</Button>
+        <Button className='mr-1' icon={<PlusOutlined />} onClick={showModal}>新增</Button>
+        <Button loading={loading} icon={<ReloadOutlined />} onClick={handleRefresh}>更新</Button>
       </div>
       <Table
         pagination={false}
@@ -113,7 +146,7 @@ const FeedsTable = () => {
         dataSource={feeds.map(f => ({key: f.file_id, ...f}))}
         expandable={{
           expandedRowRender: (record) => <p style={{ margin: 0 }}>
-            {record.mixes.map(f => <Tag key={f.file_id}>{f.name}</Tag>)}
+            {record.mixes.map(f => <Tag className='cursor-pointer'  onClick={handleMix.bind(null, record, f)} key={f.file_id}>{f.name}</Tag>)}
           </p>,
           rowExpandable: (record) => !!record.mixes.length,
           onExpand: async (isExpand, record) => {
