@@ -1,7 +1,9 @@
-import { getAllFeeds, refreshFeed } from "@/app/lib/action";
-import { NextRequest, NextResponse } from "next/server";
+export const runtime = 'edge';
 
-export async function GET(req: NextRequest) {
+import { getAllFeeds, refreshFeed } from "@/app/lib/action";
+import { NextResponse } from "next/server";
+
+export async function GET() {
   const feeds = await getAllFeeds()
   const all = await Promise.all(feeds.map((feed) => refreshFeed(feed.file_id) ))
 
