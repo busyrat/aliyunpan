@@ -1,6 +1,8 @@
 import { getAllFeeds, refreshFeed } from "@/app/lib/action";
 import { NextResponse } from "next/server";
 
+export const dynamic = 'force-dynamic' // defaults to auto
+
 export async function GET() {
   const feeds = await getAllFeeds()
   const all = await Promise.all(feeds.map((feed) => refreshFeed(feed.file_id) ))
