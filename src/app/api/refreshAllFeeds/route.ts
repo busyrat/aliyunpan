@@ -1,5 +1,3 @@
-export const runtime = 'edge';
-
 import { getAllFeeds, refreshFeed } from "@/app/lib/action";
 import { NextResponse } from "next/server";
 
