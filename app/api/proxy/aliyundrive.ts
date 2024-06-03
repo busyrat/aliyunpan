@@ -111,8 +111,6 @@ class AliyunDrive {
     const headers: any = this.generateHeaders(this.token)
     headers.Authorization = `${res0.data.token_type} ${res0.data.access_token}`
     
-    console.log(headers);
-    
     const res: any = await axios.post(url, data, { headers });
     // const res2 = await axios.get(res.data.download_url, {
     //   headers: {"Referer":"https://www.aliyundrive.com/"}

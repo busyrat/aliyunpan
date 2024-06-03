@@ -9,6 +9,7 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "阿里云盘分享订阅",
   description: "阿里云盘分享订阅",
+  referrer: 'same-origin'
 };
 
 const RootLayout = ({ children }: React.PropsWithChildren) => (
