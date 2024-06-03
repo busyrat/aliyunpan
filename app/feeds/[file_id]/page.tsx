@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { sql } from '@vercel/postgres';
-import FilesTable from './components/Table';
+import FilesTree from './components/Tree';
 import { Feed } from '@/app/lib/db';
 
 export const metadata: Metadata = {
@@ -34,6 +34,7 @@ export default async function Page({ params }: PageProps) {
   `
 
   const feedMap = rows.reduce((acc, cur) => ({...acc, [cur.file_id]: cur}), {})
-  
-  return <FilesTable file_id={file_id} feedMap={feedMap}/>
+
+  // return <FilesTable file_id={file_id} feedMap={feedMap}/>
+  return <FilesTree file_id={file_id} feedMap={feedMap}></FilesTree>
 }

@@ -29,6 +29,10 @@ export async function GET(req: NextRequest, { params }: Params ) {
       message = await drive.getFile(file_id)  
     } else if (path === 'getList') {
       message = await drive.getList(file_id)
+    } else if (path === 'getPreview') {
+      message = await drive.getPreview(file_id)
+    } else if (path === 'getLink') {
+      message = await drive.getLink(file_id)
     } else {
       return NextResponse.json({ error: 1, message: 'path is invalid' });
     }

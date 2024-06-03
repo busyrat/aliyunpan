@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { createFeed, getFeed, getFeedDiff, getFeedWithRead, getFile, getList, refreshAllFeeds, refreshFeed, removeFeed, updateFileRead } from '@/app/lib/action';
 import { Feed, File } from '@/app/lib/db';
 import { PlusOutlined, ReloadOutlined } from '@ant-design/icons';
+import axios from 'axios';
 
 export interface Row extends Feed {
   mixes: File[]
@@ -132,6 +133,14 @@ const FeedsTable = () => {
     await updateFileRead(file.file_id)
     setFeeds(feeds.concat([]))
   }
+
+
+  useEffect(() => {
+    axios.get('/api/proxy/aliyundrive/getLink?share_id=uh4ZJGD3SDh&file_id=62103ec373d366c08ed54ae28529245fc17069e1').then(res => {
+      console.log(res);
+      
+    })
+  }, [])
 
   return (
     <div className="w-full">
