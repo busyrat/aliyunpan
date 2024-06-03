@@ -19,6 +19,7 @@ export default function Player({ option, getInstance, ...rest }) {
         art.destroy(false);
       }
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return <div ref={artRef} {...rest}></div>;

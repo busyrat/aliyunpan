@@ -108,7 +108,7 @@ class AliyunDrive {
       expire_sec: 600,
       share_id: this.share_id,
     };
-    const headers = this.generateHeaders(this.token)
+    const headers: any = this.generateHeaders(this.token)
     headers.Authorization = `${res0.data.token_type} ${res0.data.access_token}`
     
     console.log(headers);
