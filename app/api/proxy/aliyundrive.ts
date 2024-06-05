@@ -100,23 +100,27 @@ class AliyunDrive {
     })
 
     await this.initializePromise
-    const url = 'https://api.alipan.com/v2/file/get_share_link_download_url';
+    const url = 'https://api.alipan.com/v2/file/get_share_link_video_preview_play_info';
     let data = {
       drive_id: '',
       file_id,
-      // // Only ten minutes lifetime
-      expire_sec: 600,
       share_id: this.share_id,
+      category: 'live_transcoding',
+      get_preview_url: true,
+      get_subtitle_info: true,
+      mode: 'high_res',
+      template_id: '',
+      url_expire_sec: 600
     };
     const headers: any = this.generateHeaders(this.token)
-    headers.Authorization = `${res0.data.token_type} ${res0.data.access_token}`
+    // headers.Authorization = `${res0.data.token_type} ${res0.data.access_token}`
     
     const res: any = await axios.post(url, data, { headers });
     // const res2 = await axios.get(res.data.download_url, {
     //   headers: {"Referer":"https://www.aliyundrive.com/"}
     // })
 
-    // console.log(res2);
+    console.log(res);
     
     return res.data
   }

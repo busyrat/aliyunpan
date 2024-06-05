@@ -16,7 +16,7 @@ async function withRetry(
       const res = await requestFunction(...args);
       return res; // 如果请求成功，直接返回结果
     } catch (error) {
-      console.error(`请求失败, 暂停${s}s`);
+      console.error(`请求失败, 暂停${s}s`, error);
       await delay(1000 * s); // 等待一段时间后重试
       attempt++; // 尝试次数加一
     }
