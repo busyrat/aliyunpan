@@ -80,12 +80,18 @@ const FeedsTable = () => {
     const values = await formInstance?.validateFields();
     let file
     if (!values.file_id) {
-      const list = await getList(values.share_id, 'root')
+      const list = await getList({
+        share_id: values.share_id,
+        file_id: 'root'
+      })
       file = list[0]
       form.setFieldValue('file_id', list[0].file_id)
       values.file_id = list[0].file_id
     } else {
-      file = await getFile(values.share_id, values.file_id)
+      file = await getFile({
+        share_id: values.share_id,
+        file_id: values.file_id
+      })
     }
 
     form.setFieldValue('parent_file_id', file.parent_file_id)
@@ -133,14 +139,6 @@ const FeedsTable = () => {
     await updateFileRead(file.file_id)
     setFeeds(feeds.concat([]))
   }
-
-
-  useEffect(() => {
-    axios.get('/api/proxy/aliyundrive/getLink?share_id=uh4ZJGD3SDh&file_id=62103ec373d366c08ed54ae28529245fc17069e1').then(res => {
-      console.log(res);
-      
-    })
-  }, [])
 
   return (
     <div className="w-full">

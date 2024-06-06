@@ -64,7 +64,7 @@ const FilesTable = ({ file_id, feedMap }: FileTreeProps) => {
 
   useEffect(() => {
     (async () => {
-      const files: File[] = await getList(share_id, file_id)
+      const files: File[] = await getList({share_id, file_id})
       const _tree = files.map((file, index) => ({
         key: file.file_id,
         pos: [index],
@@ -78,7 +78,7 @@ const FilesTable = ({ file_id, feedMap }: FileTreeProps) => {
     const { share_id, file_id, pos } = record
     if (record.children) return
     
-    const files: File[] = await getList(share_id, file_id)
+    const files: File[] = await getList({ share_id, file_id })
     const _tree = files.map((file, index) => ({
       key: file.file_id,
       pos: pos.concat(index),

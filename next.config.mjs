@@ -9,6 +9,13 @@ const nextConfig = {
 
     return config
   },
+  images: {
+    remotePatterns: [
+      {
+        hostname: 'cn-beijing-data.aliyundrive.net'
+      }
+    ]
+  }
 };
 
 export default nextConfig;

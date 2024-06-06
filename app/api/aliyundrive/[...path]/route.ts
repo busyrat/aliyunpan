@@ -1,4 +1,4 @@
-import { getFile, getList } from "@/services/aliyundriveShare";
+import { getFile, getLink, getLinkVideoPreview, getList } from "@/services/aliyundriveShare";
 import { NextRequest, NextResponse } from "next/server";
 
 interface Params {
@@ -21,6 +21,12 @@ export async function GET(req: NextRequest, { params }: Params ) {
       break;
     case 'getList':
       message = await getList({ share_id, file_id })
+      break;
+    case 'getLink':
+      message = await getLink({ share_id, file_id })
+      break;
+    case 'getLinkVideoPreview':
+      message = await getLinkVideoPreview({ share_id, file_id })
       break;
     default:
       break;

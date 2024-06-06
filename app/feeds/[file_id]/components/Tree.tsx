@@ -3,8 +3,9 @@
 import React, { useEffect, useState } from 'react';
 import { Tree } from 'antd';
 import { Feed, File } from '@/app/lib/db';
-import { createFeed, getList } from '@/app/lib/action';
 import Preview from './Preview'
+import DownloadLink from './DownloadLink'
+import { getList } from '@/app/lib/action';
 
 interface DataNode {
   title: string;
@@ -45,7 +46,7 @@ const FilesTree: React.FC<FileTreeProps> = ({ file_id, feedMap }) => {
 
   useEffect(() => {
     (async () => {
-      const files: File[] = await getList(share_id, file_id)
+      const files: File[] = await getList({ share_id, file_id })
       const _tree = files.map((file, index) => ({
         key: file.file_id,
         title: file.name,
@@ -60,7 +61,7 @@ const FilesTree: React.FC<FileTreeProps> = ({ file_id, feedMap }) => {
     const { share_id, file_id, pos } = record
     if (record.children) return
     
-    const files: File[] = await getList(share_id, file_id)
+    const files: File[] = await getList({ share_id, file_id })
     const _tree = files.map((file, index) => ({
       key: file.file_id,
       title: file.name,
@@ -74,12 +75,18 @@ const FilesTree: React.FC<FileTreeProps> = ({ file_id, feedMap }) => {
 
   const [selectedNode, setSelectedNode] = useState<any>({})
   const onSelect = (selectedKeys: React.Key[], { node }: { node: any }) => {
+    console.log(node)
     setSelectedNode(node)
   }
 
   return <div className="flex">
-    <Tree loadData={onLoadData} treeData={treeData} onSelect={onSelect} />
-    <Preview data={selectedNode} />
+    <Tree className="flex-1" loadData={onLoadData} treeData={treeData} onSelect={onSelect} />
+    <div className="flex-1">
+      <DownloadLink data={selectedNode} />
+      {
+        selectedNode.type === "file" && ['mp4', 'mkv'].includes(selectedNode.file_extension) && <Preview data={selectedNode} />
+      }
+    </div>
   </div>
 };
 

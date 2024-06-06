@@ -13,6 +13,8 @@ interface RefreshParams {
 class BaseRequest {
   private api: AxiosInstance
   private token: string = ''
+  private bearerAuthorization: string = ''
+  public forceUpdateToken: boolean = false
   
   constructor(baseURL: string) {
     this.api = axios.create({
@@ -41,12 +43,22 @@ class BaseRequest {
     if (!refreshParams.share_pwd) {
       refreshParams.share_pwd = ''
     }
+    console.log(refreshParams);
     const res = await axios.post(url, refreshParams);
     this.token = res.data.share_token
   }
+
+  private async refreshAuthorization() {
+    const url = 'https://auth.alipan.com/v2/account/token'
+    const res = await axios.post(url, {
+      refresh_token: '973b824ad34241c78ce73e30a41329cb',
+      grant_type: "refresh_token"
+    })
+    this.bearerAuthorization = res.data.access_token
+  }
   
   private async handleRequest(config: AdaptAxiosRequestConfig): Promise<AdaptAxiosRequestConfig> {
-    if (!this.token) {
+    if (!this.token || this.forceUpdateToken) {
       const { share_id, share_pwd } = config.data
       await this.refreshToken({ share_id, share_pwd });
     }
@@ -68,18 +80,27 @@ class BaseRequest {
 
     if (status === 401 && !originalRequestConfig._retry) {
       originalRequestConfig._retry = true;
-      const { share_id, share_pwd } = originalRequestConfig.data
-      await this.refreshToken({ share_id, share_pwd });
 
-      originalRequestConfig.headers['X-Share-Token'] = this.token
+      // shareToken 过期
+      // const { share_id, share_pwd } = originalRequestConfig.data
+      // await this.refreshToken({ share_id, share_pwd });
+      // originalRequestConfig.headers['X-Share-Token'] = this.token
+
+      await this.refreshAuthorization()
+      originalRequestConfig.headers['Authorization'] = `Bearer ${this.bearerAuthorization}`
 
       return this.api(originalRequestConfig);
     }
 
-    if ([429, 502, 504].includes(status) && originalRequestConfig._retryCount < 5) {
+    const { _retryCount = 0 } = originalRequestConfig
+    if (
+      [429, 502, 504].includes(status) 
+      && _retryCount < 5
+    ) {
+      console.log(`[${status}] Retrying request...`);
       await delay(10 * 1000)
-      originalRequestConfig._retryCount = (originalRequestConfig._retryCount || 0) + 1
-      return this.api(originalRequestConfig);
+      originalRequestConfig._retryCount = _retryCount + 1
+      return await this.api(originalRequestConfig);
     }
 
     return Promise.reject(error);
@@ -96,7 +117,9 @@ class BaseRequest {
   }
 }
 
-export const r = new BaseRequest('https://api.aliyundrive.com')
+const r = new BaseRequest('https://api.aliyundrive.com')
+
+// ?share_id=uh4ZJGD3SDh&file_id=621058f226c37b2560d94d44903413c0e79f61e1
 
 export const getFile = async ({ share_id, file_id }: {
   share_id: string,
@@ -112,91 +135,69 @@ export const getFile = async ({ share_id, file_id }: {
   return res
 }
 
-// export async function getList ({ share_id, file_id }: {
-//   share_id: string,
-//   file_id: string,
-// }) {
-//   const body = {
-//     share_id,
-//     parent_file_id: file_id,
-//     limit: 1,
-//     order_by: "name",
-//     marker: ''
-//   }
-//   let items: File[] = []
-
-//   do {
-//     const res = await r.post<any>('/adrive/v2/file/list_by_share', body)
-//     items = items.concat(res.items)
-//     body.marker = res.next_marker    
-//   } while (body.marker);
-
-//   return items;
-// }
-
-// export async function *getList ({ share_id, file_id, marker }: {
-//   share_id: string,
-//   file_id: string,
-//   marker?: string,
-// }): AsyncGenerator<any[]> {
-//   const body = {
-//     limit: 1,
-//     order_by: "name",
-//   }
-//   let items: File[] = []
-
-//   const res = await r.post<any>('/adrive/v2/file/list_by_share', { share_id, parent_file_id: file_id, marker, ...body })
-//   yield res.items
-
-//   if (res.next_marker) {
-//     yield *getList({ share_id, file_id, marker: res.next_marker })
-//   }
-// }
-
-// export async function getList ({ share_id, file_id }: {
-//   share_id: string,
-//   file_id: string,
-// }): Promise<any> {
-//   async function *fetchData({ share_id, file_id, marker }: any): AsyncGenerator<any[]> {
-//     const body = {
-//       limit: 1,
-//       order_by: "name",
-//     }
-//     const res = await r.post<any>('/adrive/v2/file/list_by_share', { share_id, parent_file_id: file_id, marker, ...body })
-    
-//     yield res.items
-//     if (res.next_marker) {
-//       yield *fetchData({ share_id, file_id, marker: res.next_marker })
-//     }
-//   }
-
-//   const allItems = [];
-    
-//   for await (const items of fetchData({ share_id, file_id })) {
-//     allItems.push(...items);
-//   }
-//   return allItems
-// }
-
-export async function getList ({ share_id, file_id }: {
+export const getList = async ({ share_id, file_id }: {
   share_id: string,
   file_id: string,
-}): Promise<any[]> {
-  const allItems: any[] = [];
-  async function fetchData({ share_id, file_id, marker }: any): Promise<any> {
+}) => {
+  r.forceUpdateToken = true
+  async function* fetchData () {
     const body = {
-      limit: 1,
+      share_id,
+      parent_file_id: file_id,
+      limit: 200,
       order_by: "name",
+      marker: '_begin_marker_'
     }
-    const res = await r.post<any>('/adrive/v2/file/list_by_share', { share_id, parent_file_id: file_id, marker, ...body })
-    
-    allItems.push(...res.items);
-    if (res.next_marker) {
-      await fetchData({ share_id, file_id, marker: res.next_marker })
+  
+    while (body.marker) {
+      if (body.marker === '_begin_marker_') body.marker = ''
+      const res = await r.post<any>('/adrive/v2/file/list_by_share', body)
+      yield res.items
+      body.marker = res.next_marker
     }
   }
 
-  await fetchData({ share_id, file_id })
+  // 使用生成器进行异步数据获取，并转换为数组，node>=22 可使用 Array.fromAsync
+  // const allItems = (await Array.fromAsync(fetchData())).flat()
+  const allItems = [];
+  for await (const items of fetchData()) {
+    allItems.push(...items);
+  }
 
-  return allItems
+  return allItems;
+}
+
+export const getLink = async ({ share_id, file_id }: {
+  share_id: string,
+  file_id: string
+}) => {
+  const url = 'https://api.alipan.com/v2/file/get_share_link_download_url';
+  const res = await r.post<any>(url, {
+    drive_id: '',
+    share_id,
+    file_id,
+    // Only ten minutes lifetime
+    expire_sec: 600,
+  })
+
+  return res
+}
+
+export const getLinkVideoPreview = async ({ share_id, file_id }: {
+  share_id: string,
+  file_id: string
+}) => {
+  const url = 'https://api.alipan.com/v2/file/get_share_link_video_preview_play_info';
+  const res = await r.post<any>(url, {
+    drive_id: '',
+    file_id,
+    share_id,
+    category: 'live_transcoding',
+    get_preview_url: true,
+    get_subtitle_info: true,
+    mode: 'high_res',
+    template_id: '',
+    url_expire_sec: 600
+  })
+  return res
 }

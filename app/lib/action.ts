@@ -1,6 +1,6 @@
 'use server'
 
-import { getList as getAliyundriveList, getFile as getAliyundriveFile } from "@/services/aliyundrive";
+import { getList as getAliyundriveList, getFile as getAliyundriveFile } from "@/services/aliyundriveShare";
 import { feeds as Feed, files as File, files } from "@prisma/client";
 import { sql } from "@vercel/postgres"
 import _ from "lodash";
@@ -55,7 +55,8 @@ export async function refreshFeed(file_id: string, isCreate: boolean = false): P
     if (!feed?.share_id) return -1
     const { share_id } = feed
   
-    const list = await getAliyundriveList(share_id, file_id);
+    const list = await getAliyundriveList({ share_id, file_id });
+    
     const r = await prisma.files.createMany({
       data: list.map((file: any) => ({
         read_flag: isCreate ? 1 : null,
@@ -66,7 +67,7 @@ export async function refreshFeed(file_id: string, isCreate: boolean = false): P
     console.log(`feed refresh success. ${file_id} insert ${r.count}`);
     return r.count
   } catch (error) {
-    console.log(`file refresh failed. ${file_id}`);    
+    console.log(`file refresh failed. ${file_id}`, error);
     return -1
   }
 }
@@ -95,13 +96,19 @@ export async function updateAllFilesRead() {
   `
 }
 
-export async function getList(share_id: string, file_id: string) {
-  const list = await getAliyundriveList(share_id, file_id);
+export async function getList({ share_id, file_id }: {
+  share_id: string,
+  file_id: string
+}) {
+  const list = await getAliyundriveList({share_id, file_id});
   return list
 }
 
-export async function getFile(share_id: string, file_id: string) {
-  const file = await getAliyundriveFile(share_id, file_id)
+export async function getFile({ share_id, file_id }: {
+  share_id: string,
+  file_id: string
+}) {
+  const file = await getAliyundriveFile({share_id, file_id})
   return file
 }
 
@@ -133,7 +140,7 @@ export async function getFeedDiff(file_id: string) {
   `
   
   const share_id = last[0].share_id
-  const current = await getAliyundriveList(share_id, file_id)
+  const current = await getAliyundriveList({ share_id, file_id })
 
   const currentObject: FileMap = current.reduce((a, c) => ({ ...a, [c.file_id]: c }), {})
   const lastObject: FileMap = last.reduce((a, c) => ({ ...a, [c.file_id]: c }), {})
