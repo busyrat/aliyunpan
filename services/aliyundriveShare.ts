@@ -59,6 +59,7 @@ class BaseRequest {
   
   private async handleRequest(config: AdaptAxiosRequestConfig): Promise<AdaptAxiosRequestConfig> {
     if (!this.token || this.forceUpdateToken) {
+      this.forceUpdateToken = false
       const { share_id, share_pwd } = config.data
       await this.refreshToken({ share_id, share_pwd });
     }
