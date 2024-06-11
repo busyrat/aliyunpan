@@ -6,6 +6,8 @@ import { Feed, File } from '@/app/lib/db';
 import Preview from './Preview'
 import DownloadLink from './DownloadLink'
 import { getList } from '@/app/lib/action';
+import { Allotment } from "allotment";
+import "allotment/dist/style.css";
 
 interface DataNode {
   title: string;
@@ -79,14 +81,20 @@ const FilesTree: React.FC<FileTreeProps> = ({ file_id, feedMap }) => {
     setSelectedNode(node)
   }
 
-  return <div className="flex">
-    <Tree className="flex-1" loadData={onLoadData} treeData={treeData} onSelect={onSelect} />
-    <div className="flex-1">
-      <DownloadLink data={selectedNode} />
-      {
-        selectedNode.type === "file" && ['mp4', 'mkv'].includes(selectedNode.file_extension) && <Preview data={selectedNode} />
-      }
-    </div>
+  return <div className="relative h-full">
+    <Allotment defaultSizes={[300, 1000]}>
+      <div className="h-full overflow-y-auto">
+        <Tree className="flex-1" loadData={onLoadData} treeData={treeData} onSelect={onSelect} />
+      </div>
+      <div className="h-full overflow-y-auto">
+        <div className="flex-1 p-2">
+          <DownloadLink data={selectedNode} />
+          {
+            selectedNode.type === "file" && ['mp4', 'mkv'].includes(selectedNode.file_extension) && <Preview data={selectedNode} />
+            }
+        </div>
+      </div>
+    </Allotment>
   </div>
 };
 
