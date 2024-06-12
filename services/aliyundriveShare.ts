@@ -43,7 +43,6 @@ class BaseRequest {
     if (!refreshParams.share_pwd) {
       refreshParams.share_pwd = ''
     }
-    console.log(refreshParams);
     const res = await axios.post(url, refreshParams);
     this.token = res.data.share_token
   }
@@ -74,6 +73,8 @@ class BaseRequest {
   }
 
   private async handleResponseError(error: any): Promise<any> {
+    // console.log(error);
+    
     const originalRequestConfig = error.config;
     if (!error.response) return Promise.reject(error);
 

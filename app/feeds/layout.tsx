@@ -1,44 +1,28 @@
-'use client'
-import React, { useState } from 'react';
-import {
-  AuditOutlined
-} from '@ant-design/icons';
-import type { MenuProps } from 'antd';
-import { Breadcrumb, Layout, Menu, theme } from 'antd';
-import { redirect, useRouter } from 'next/navigation';
+import React from 'react'
+import FeedLayout from './layouts'
+import { headers } from 'next/headers'
+import { userAgent } from 'next/server'
 
-const { Header, Content, Footer, Sider } = Layout;
+type Props = {
+  children: React.ReactNode
+}
 
-type MenuItem = Required<MenuProps>['items'][number];
-
-const items: MenuItem[] = [
-  {
-    key: 'feed',
-    icon: <AuditOutlined />,
-    label: '订阅'
-  }
-];
-
-const FeedLayout= ({ children }: { children: React.ReactNode }) => {
-  const [collapsed, setCollapsed] = useState(false);
-  const router = useRouter()
-
-  const handleMenu = () => {
-    router.push('/feeds/all')
+const layout = (props: Props) => {
+  const { get } = headers()
+  const ua = get('user-agent') || ''
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua)
+  
+  if (isMobile) {
+    return <>
+      { props.children }
+    </>
   }
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
-      <Sider theme="light" collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
-        <Menu defaultSelectedKeys={['1']} mode="inline" items={items} onClick={handleMenu} />
-      </Sider>
-      <Layout>
-        <Content className="p-4">
-          { children }
-        </Content>
-      </Layout>
-    </Layout>
-  );
-};
+    <FeedLayout>
+      { props.children }
+    </FeedLayout>
+  )
+}
 
-export default FeedLayout;
+export default layout

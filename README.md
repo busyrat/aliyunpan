@@ -2,6 +2,9 @@
 
 ## api
 
-- /api/aliyundrive/list
-- /api/aliyundrive/search
+- /api/aliyundrive/getFile
+- /api/aliyundrive/getList
+- /api/aliyundrive/getLink
+- /api/aliyundrive/getLinkVideoPreview
 
+- /api/refreshAllFeeds

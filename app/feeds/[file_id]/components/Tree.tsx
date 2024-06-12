@@ -1,13 +1,9 @@
 'use client'
-
 import React, { useEffect, useState } from 'react';
 import { Tree } from 'antd';
 import { Feed, File } from '@/app/lib/db';
-import Preview from './Preview'
-import DownloadLink from './DownloadLink'
 import { getList } from '@/app/lib/action';
-import { Allotment } from "allotment";
-import "allotment/dist/style.css";
+import { useRouter } from 'next/navigation';
 
 interface DataNode {
   title: string;
@@ -75,27 +71,12 @@ const FilesTree: React.FC<FileTreeProps> = ({ file_id, feedMap }) => {
     )
   }
 
-  const [selectedNode, setSelectedNode] = useState<any>({})
+  const router = useRouter()
   const onSelect = (selectedKeys: React.Key[], { node }: { node: any }) => {
-    console.log(node)
-    setSelectedNode(node)
+    router.push(`/feeds/${file_id}/${node.file_id}`)
   }
 
-  return <div className="relative h-full">
-    <Allotment defaultSizes={[300, 1000]}>
-      <div className="h-full overflow-y-auto">
-        <Tree className="flex-1" loadData={onLoadData} treeData={treeData} onSelect={onSelect} />
-      </div>
-      <div className="h-full overflow-y-auto">
-        <div className="flex-1 p-2">
-          <DownloadLink data={selectedNode} />
-          {
-            selectedNode.type === "file" && ['mp4', 'mkv'].includes(selectedNode.file_extension) && <Preview data={selectedNode} />
-            }
-        </div>
-      </div>
-    </Allotment>
-  </div>
+  return <Tree loadData={onLoadData} treeData={treeData} onSelect={onSelect} />
 };
 
 export default FilesTree;

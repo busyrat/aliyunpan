@@ -1,41 +1,42 @@
 'use client'
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
-import Artplayer from './Artplayer';
+import Artplayer from './Artplayer'
 import flvjs from "flv.js"
 import Hls from "hls.js"
 
 type PreviewProps = {
-  data: any
+  file: any
 }
 
-const Preview: React.FC<PreviewProps> = ({ data }) => {
+const VideoPreview: React.FC<PreviewProps> = ({ file }) => {
   const [url, setUrl] = useState<string>('')
   useEffect(() => {
     const run = async () => {
-      if (!data.share_id || !data.file_id) return
+      if (!file.share_id || !file.file_id) return
       setUrl('')
       const res = await axios.get('/api/aliyundrive/getLinkVideoPreview', {
         params: {
-          file_id: data.file_id,
-          share_id: data.share_id
+          file_id: file.file_id,
+          share_id: file.share_id
         }
       })
       setUrl(res.data.message.video_preview_play_info.live_transcoding_task_list[0].preview_url)
     }
     run()
-  }, [data.file_id, data.share_id])
+  }, [file.file_id, file.share_id])
 
   if (!url) return <div>loading...</div>
 
   return (
     <div>
+      <div className="text-2xl">{ file.name }</div>
       <Artplayer
         option={{
           url,
-          id: data.file_id || '',
-          poster: data.thumbnail || '',
-          title: data.name || '',
+          id: file.file_id || '',
+          poster: file.thumbnail || '',
+          title: file.name || '',
           flip: true,
           setting: true,
           playbackRate: true,
@@ -43,7 +44,7 @@ const Preview: React.FC<PreviewProps> = ({ data }) => {
           fullscreen: true,
           fullscreenWeb: true,
           miniProgressBar: true,
-          autoplay: true,
+          autoplay: false,
           screenshot: true,
           hotkey: false,
           airplay: true,
@@ -83,7 +84,6 @@ const Preview: React.FC<PreviewProps> = ({ data }) => {
         style={{
           width: '600px',
           height: '400px',
-          margin: '60px auto 0',
         }}
         getInstance={(art: any) => console.info(art)}
       />
@@ -91,4 +91,4 @@ const Preview: React.FC<PreviewProps> = ({ data }) => {
   )
 }
 
-export default Preview
+export default VideoPreview
