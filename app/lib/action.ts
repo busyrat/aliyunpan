@@ -46,7 +46,7 @@ export async function refreshAllFeeds(): Promise<number> {
     res = -1
   }
 
-  sendMessage(`手动更新完成${res}`)
+  await sendMessage(`手动更新完成${res}`)
 
   return res
 }
