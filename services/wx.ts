@@ -10,5 +10,9 @@ export const sendMessage = (message: string) => {
     headers: {
       'Content-Type': 'application/json'
     }
+  }).then(res => {
+    console.log('企业微信发送成功', res);
+  }).catch(err => {
+    console.log('企业微信发送失败', err);
   })
 }
