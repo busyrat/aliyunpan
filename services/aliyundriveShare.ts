@@ -42,6 +42,7 @@ class BaseRequest {
     if (!refreshParams.share_pwd) {
       refreshParams.share_pwd = ''
     }
+    if (!refreshParams.share_id) return
     const res = await axios.post(url, refreshParams);
     this.tokenMap[refreshParams.share_id] = res.data.share_token
   }
@@ -71,25 +72,24 @@ class BaseRequest {
   }
 
   private async handleResponseError(error: any): Promise<any> {
-    // console.log(error);
-    
     const originalRequestConfig = error.config;
     if (!error.response) return Promise.reject(error);
+    console.log('请求失败', error.response);
 
-    const { status } = error.response;
+    const { status, data } = error.response;
 
-    if (status === 400) {
-      const { share_id, share_pwd } = originalRequestConfig.data
-      if (!share_id) return Promise.reject(error)
-      console.log('shareToken 过期', share_id, share_pwd)
-      await this.refreshToken({ share_id, share_pwd });
+    if (typeof originalRequestConfig.data === 'string') {
+      originalRequestConfig.data = JSON.parse(originalRequestConfig.data)
+    }
+    const { share_id, share_pwd } = originalRequestConfig.data
+
+    if (data.code === 'ShareLinkTokenInvalid') {
+      await this.refreshToken({ share_id, share_pwd });      
       originalRequestConfig.headers['X-Share-Token'] = this.tokenMap[share_id]
       return await this.api(originalRequestConfig);
     }
 
-    if (status === 401 && !originalRequestConfig._retry) {
-      originalRequestConfig._retry = true;
-
+    if (data.code === 'AccessTokenInvalid') {
       await this.refreshAuthorization()
       originalRequestConfig.headers['Authorization'] = `Bearer ${this.bearerAuthorization}`
 
