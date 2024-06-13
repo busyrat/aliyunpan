@@ -49,6 +49,11 @@ export default async function Page(props: PageProps) {
       Preview = MarkdownPreview
       break;
     case 'mkv':
+    case 'mp4':
+    case 'rmvb':
+    case 'mov':
+    case 'avi':
+    case 'flv':
       Preview = VideoPreview
       break;
     case 'jpg':
