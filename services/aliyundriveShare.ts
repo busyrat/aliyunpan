@@ -12,9 +12,8 @@ interface RefreshParams {
 
 class BaseRequest {
   private api: AxiosInstance
-  private token: string = ''
+  private tokenMap: Record<string, string> = {}
   private bearerAuthorization: string = ''
-  public forceUpdateToken: boolean = false
   
   constructor(baseURL: string) {
     this.api = axios.create({
@@ -44,7 +43,7 @@ class BaseRequest {
       refreshParams.share_pwd = ''
     }
     const res = await axios.post(url, refreshParams);
-    this.token = res.data.share_token
+    this.tokenMap[refreshParams.share_id] = res.data.share_token
   }
 
   private async refreshAuthorization() {
@@ -57,13 +56,12 @@ class BaseRequest {
   }
   
   private async handleRequest(config: AdaptAxiosRequestConfig): Promise<AdaptAxiosRequestConfig> {
-    if (!this.token || this.forceUpdateToken) {
-      this.forceUpdateToken = false
-      const { share_id, share_pwd } = config.data
+    const { share_id, share_pwd } = config.data
+    if (!this.tokenMap[share_id]) {
       await this.refreshToken({ share_id, share_pwd });
     }
     
-    config.headers['X-Share-Token'] = this.token
+    config.headers['X-Share-Token'] = this.tokenMap[share_id]
 
     return config
   }
@@ -80,18 +78,22 @@ class BaseRequest {
 
     const { status } = error.response;
 
+    if (status === 400) {
+      const { share_id, share_pwd } = originalRequestConfig.data
+      if (!share_id) return Promise.reject(error)
+      console.log('shareToken 过期', share_id, share_pwd)
+      await this.refreshToken({ share_id, share_pwd });
+      originalRequestConfig.headers['X-Share-Token'] = this.tokenMap[share_id]
+      return await this.api(originalRequestConfig);
+    }
+
     if (status === 401 && !originalRequestConfig._retry) {
       originalRequestConfig._retry = true;
-
-      // shareToken 过期
-      // const { share_id, share_pwd } = originalRequestConfig.data
-      // await this.refreshToken({ share_id, share_pwd });
-      // originalRequestConfig.headers['X-Share-Token'] = this.token
 
       await this.refreshAuthorization()
       originalRequestConfig.headers['Authorization'] = `Bearer ${this.bearerAuthorization}`
 
-      return this.api(originalRequestConfig);
+      return await this.api(originalRequestConfig);
     }
 
     const { _retryCount = 0 } = originalRequestConfig
@@ -141,7 +143,6 @@ export const getList = async ({ share_id, file_id }: {
   share_id: string,
   file_id: string,
 }) => {
-  r.forceUpdateToken = true
   async function* fetchData () {
     const body = {
       share_id,

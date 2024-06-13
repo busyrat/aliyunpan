@@ -7,6 +7,7 @@ import _ from "lodash";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import prisma, { FeedCreate, FileMap } from "@/app/lib/db";
+import { sendMessage } from "@/services/wx";
 
 export async function createFeed(values: FeedCreate) {
   const { name, share_id, file_id, parent_file_id } = values
@@ -44,6 +45,8 @@ export async function refreshAllFeeds(): Promise<number> {
   } else {
     res = -1
   }
+
+  sendMessage(`手动更新完成${res}`)
 
   return res
 }
