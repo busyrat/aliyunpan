@@ -1,5 +1,7 @@
 'use client'
+import { copyFile } from '@/app/lib/action'
 import { DownloadOutlined } from '@ant-design/icons'
+import { Button } from 'antd'
 import axios, { AxiosProgressEvent } from 'axios'
 import React, { useEffect } from 'react'
 
@@ -8,6 +10,7 @@ type Props = {
 }
 
 const Download: React.FC<Props> = ({ file }) => {
+  const { share_id, file_id } = file
   const [progress, setProgress] = React.useState('')
   const handleDownload = async () => {
     if (!file.link.url) return
@@ -55,6 +58,11 @@ const Download: React.FC<Props> = ({ file }) => {
     // 释放URL对象
     URL.revokeObjectURL(url);
   }
+
+  const handleCopyFile = async () => {
+    const r = await copyFile({ share_id, file_id })
+    console.log(r);
+  }
   
   return (
     // 很奇怪 a 标签的下载链接没法重命名
@@ -63,6 +71,7 @@ const Download: React.FC<Props> = ({ file }) => {
     <span className="text-2xl hover:text-sky-500 text-gray-500">
       <DownloadOutlined onClick={handleDownload} />
       {progress}
+      <Button onClick={handleCopyFile}>转存</Button>
     </span>
   )
 }

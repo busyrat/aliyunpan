@@ -174,7 +174,7 @@ export const getLink = async ({ share_id, file_id }: {
   share_id: string,
   file_id: string
 }) => {
-  const url = 'https://api.alipan.com/v2/file/get_share_link_download_url';
+  const url = '/v2/file/get_share_link_download_url';
   const res = await r.post<any>(url, {
     drive_id: '',
     share_id,
@@ -190,7 +190,7 @@ export const getLinkVideoPreview = async ({ share_id, file_id }: {
   share_id: string,
   file_id: string
 }) => {
-  const url = 'https://api.alipan.com/v2/file/get_share_link_video_preview_play_info';
+  const url = '/v2/file/get_share_link_video_preview_play_info';
   const res = await r.post<any>(url, {
     drive_id: '',
     file_id,
@@ -201,6 +201,34 @@ export const getLinkVideoPreview = async ({ share_id, file_id }: {
     mode: 'high_res',
     template_id: '',
     url_expire_sec: 600
+  })
+  return res
+}
+
+export const copyFile = async ({ share_id, file_id }: {
+  share_id: string,
+  file_id: string
+}) => {
+  const url = '/adrive/v2/batch'
+  const res = await r.post<any>(url, {
+    "requests": [
+      {
+        "body": {
+          file_id,
+          share_id,
+          "auto_rename": true,
+          "to_parent_file_id": "664c474e237b9f3f31054b7dada9b43142ab3aff",
+          "to_drive_id": "658827872"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "id": "0",
+        "method": "POST",
+        "url": "/file/copy"
+      }
+    ],
+    "resource": "file"
   })
   return res
 }

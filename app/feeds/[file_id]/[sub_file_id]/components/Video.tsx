@@ -29,7 +29,7 @@ const VideoPreview: React.FC<PreviewProps> = ({ file }) => {
     run()
   }, [file.file_id, file.share_id])
 
-  const [type, setType] = useState<PlayerType>('plain')
+  const [type, setType] = useState<PlayerType>('preview')
   const onChange = useCallback((e: RadioChangeEvent) => {
     setType('')
     setTimeout(() => {
