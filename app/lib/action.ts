@@ -1,6 +1,12 @@
 'use server'
 
-import { getList as getAliyundriveList, getFile as getAliyundriveFile, getLink as getAliyundriveLink, copyFile as _copyFile } from "@/services/aliyundriveShare";
+import { 
+  getList as getAliyundriveList, 
+  getFile as getAliyundriveFile, 
+  getLink as getAliyundriveLink, 
+  copyFile as _copyFile,
+  getLink2 as _getLink2
+} from "@/services/aliyundriveShare";
 import { feeds as Feed, files as File, files } from "@prisma/client";
 import { sql } from "@vercel/postgres"
 import _ from "lodash";
@@ -120,6 +126,13 @@ export async function getLink({ share_id, file_id }: {
   file_id: string
 }) {
   const file = await getAliyundriveLink({share_id, file_id})
+  return file
+}
+
+export async function getLink2({ file_id }: {
+  file_id: string
+}) {
+  const file = await _getLink2({file_id})
   return file
 }
 

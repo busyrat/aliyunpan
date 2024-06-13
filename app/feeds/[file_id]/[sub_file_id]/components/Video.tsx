@@ -4,7 +4,8 @@ import React, { use, useCallback, useEffect, useState } from 'react'
 import Artplayer from './Artplayer'
 import flvjs from "flv.js"
 import Hls from "hls.js"
-import { Radio, RadioChangeEvent } from 'antd';
+import { Button, Radio, RadioChangeEvent } from 'antd';
+import { copyFile, getLink2 } from '@/app/lib/action'
 
 type PreviewProps = {
   file: any
@@ -13,6 +14,8 @@ type PreviewProps = {
 type PlayerType = 'plain' | 'preview' | ''
 
 const VideoPreview: React.FC<PreviewProps> = ({ file }) => {
+  const { share_id, file_id } = file
+
   const [url, setUrl] = useState<string>('')
   useEffect(() => {
     const run = async () => {
@@ -85,6 +88,14 @@ const VideoPreview: React.FC<PreviewProps> = ({ file }) => {
     }
   }
 
+  const handleCopyFile = async () => {
+    const r = await copyFile({ share_id, file_id })
+    console.log(r);
+    
+    // const r2 = await getLink2({ file_id: r.file_id })
+    // console.log(r2);
+  }
+
   return (
     <div>
       <div className="text-2xl">
@@ -95,6 +106,7 @@ const VideoPreview: React.FC<PreviewProps> = ({ file }) => {
           <Radio  value="plain">普通</Radio >
           <Radio  value="preview">2分钟</Radio >
         </Radio.Group>
+        <Button onClick={handleCopyFile}>转存</Button>
       </div>
       {
         type === 'plain' && <Artplayer

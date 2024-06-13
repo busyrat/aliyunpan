@@ -61,7 +61,6 @@ class BaseRequest {
     if (!this.tokenMap[share_id]) {
       await this.refreshToken({ share_id, share_pwd });
     }
-    
     config.headers['X-Share-Token'] = this.tokenMap[share_id]
 
     return config
@@ -209,26 +208,27 @@ export const copyFile = async ({ share_id, file_id }: {
   share_id: string,
   file_id: string
 }) => {
-  const url = '/adrive/v2/batch'
+  const url = '/v2/file/copy'
   const res = await r.post<any>(url, {
-    "requests": [
-      {
-        "body": {
-          file_id,
-          share_id,
-          "auto_rename": true,
-          "to_parent_file_id": "664c474e237b9f3f31054b7dada9b43142ab3aff",
-          "to_drive_id": "658827872"
-        },
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "id": "0",
-        "method": "POST",
-        "url": "/file/copy"
-      }
-    ],
-    "resource": "file"
+    share_id,
+    file_id,
+    to_parent_file_id: '664c474e237b9f3f31054b7dada9b43142ab3aff',
+    to_drive_id: '658827872',
+    auto_rename: true
+    // new_name: '123'
   })
+  return res
+}
+
+export const getLink2 = async ({ file_id }: {
+  file_id: string
+}) => {
+  const url = '/v2/file/get_download_url';
+  const res = await r.post<any>(url, {
+    drive_id: '658827872',
+    file_id,
+    expire_sec: 14400,
+  })
+
   return res
 }
