@@ -1,13 +1,16 @@
 'use client'
 import axios from 'axios'
-import React, { useEffect, useState } from 'react'
+import React, { use, useCallback, useEffect, useState } from 'react'
 import Artplayer from './Artplayer'
 import flvjs from "flv.js"
 import Hls from "hls.js"
+import { Radio, RadioChangeEvent } from 'antd';
 
 type PreviewProps = {
   file: any
 }
+
+type PlayerType = 'plain' | 'preview' | ''
 
 const VideoPreview: React.FC<PreviewProps> = ({ file }) => {
   const [url, setUrl] = useState<string>('')
@@ -26,67 +29,105 @@ const VideoPreview: React.FC<PreviewProps> = ({ file }) => {
     run()
   }, [file.file_id, file.share_id])
 
-  if (!url) return <div>loading...</div>
+  const [type, setType] = useState<PlayerType>('plain')
+  const onChange = useCallback((e: RadioChangeEvent) => {
+    setType('')
+    setTimeout(() => {
+      setType(e.target.value)
+    }, 200);
+  }, [])
+
+  if (!url || !file.link.url) return <div>loading...</div>
+
+  const playerOption = {
+    poster: file.thumbnail || '',
+    title: file.name || '',
+    flip: true,
+    setting: true,
+    playbackRate: true,
+    aspectRatio: true,
+    fullscreen: true,
+    fullscreenWeb: true,
+    miniProgressBar: true,
+    autoplay: false,
+    screenshot: true,
+    hotkey: false,
+    airplay: true,
+    theme: '#23ade5',
+    volume: 1.0,
+    contextmenu: [],
+    moreVideoAttr: {
+      // @ts-ignore
+      "webkit-playsinline": true,
+      playsInline: true,
+      crossOrigin: 'anonymous',
+    },
+    customType: {
+      flv: function (video: HTMLMediaElement, url: string) {
+        const flvPlayer = flvjs.createPlayer(
+          {
+            type: "flv",
+            url: url,
+          },
+          { referrerPolicy: "same-origin" },
+        )
+        flvPlayer.attachMediaElement(video)
+        flvPlayer.load()
+      },
+      m3u8: function (video: HTMLMediaElement, url: string) {
+        const hls = new Hls()
+        hls.loadSource(url)
+        hls.attachMedia(video)
+        if (!video.src) {
+          video.src = url
+        }
+      },
+    }
+  }
 
   return (
     <div>
-      <div className="text-2xl">{ file.name }</div>
-      <Artplayer
-        option={{
-          url,
-          id: file.file_id || '',
-          poster: file.thumbnail || '',
-          title: file.name || '',
-          flip: true,
-          setting: true,
-          playbackRate: true,
-          aspectRatio: true,
-          fullscreen: true,
-          fullscreenWeb: true,
-          miniProgressBar: true,
-          autoplay: false,
-          screenshot: true,
-          hotkey: false,
-          airplay: true,
-          theme: '#23ade5',
-          volume: 1.0,
-          contextmenu: [],
-          moreVideoAttr: {
-            // @ts-ignore
-            "webkit-playsinline": true,
-            playsInline: true,
-            crossOrigin: 'anonymous',
-          },
-          // type: (data.name || '').split(".").pop() ?? "",
-          type: "m3u8",
-          customType: {
-            flv: function (video: HTMLMediaElement, url: string) {
-              const flvPlayer = flvjs.createPlayer(
-                {
-                  type: "flv",
-                  url: url,
-                },
-                { referrerPolicy: "same-origin" },
-              )
-              flvPlayer.attachMediaElement(video)
-              flvPlayer.load()
-            },
-            m3u8: function (video: HTMLMediaElement, url: string) {
-              const hls = new Hls()
-              hls.loadSource(url)
-              hls.attachMedia(video)
-              if (!video.src) {
-                video.src = url
-              }
-            },
-          }
-        }}
-        style={{
-          width: '600px',
-          height: '400px',
-        }}
-        getInstance={(art: any) => console.info(art)}
-      />
+      <div className="text-2xl">
+        <span className='mr-4'>
+          { file.name }
+        </span>
+        <Radio.Group onChange={onChange} value={type}>
+          <Radio  value="plain">普通</Radio >
+          <Radio  value="preview">2分钟</Radio >
+        </Radio.Group>
+      </div>
+      {
+        type === 'plain' && <Artplayer
+          option={{
+            ...playerOption,
+            id: `${file.file_id}-plain` || '',
+            type: (file.name || '').split(".").pop() ?? "",
+            url: file.link.url || '',
+
+          }}
+          style={{
+            width: '600px',
+            height: '400px',
+          }}
+          getInstance={(art: any) => console.info(art)}
+        />
+      }
+      {
+        type === 'preview' && <Artplayer
+          option={{
+            ...playerOption,
+            id: `${file.file_id}-preview` || '',
+            type: 'm3u8',
+            url
+          }}
+          style={{
+            width: '600px',
+            height: '400px',
+          }}
+          getInstance={(art: any) => console.info(art)}
+        />
+      }
+      
     </div>
   )
 }

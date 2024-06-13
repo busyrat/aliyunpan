@@ -1,6 +1,6 @@
 'use client'
 import { DownloadOutlined } from '@ant-design/icons'
-import axios from 'axios'
+import axios, { AxiosProgressEvent } from 'axios'
 import React, { useEffect } from 'react'
 
 type Props = {
@@ -8,6 +8,7 @@ type Props = {
 }
 
 const Download: React.FC<Props> = ({ file }) => {
+  const [progress, setProgress] = React.useState('')
   const handleDownload = async () => {
     if (!file.link.url) return
     
@@ -18,6 +19,16 @@ const Download: React.FC<Props> = ({ file }) => {
             alist_ts: new Date().getTime(),
           }
         : undefined,
+      onDownloadProgress: (progressEvent: AxiosProgressEvent) => {
+        // 计算下载进度并更新UI
+        const progress = Math.round((progressEvent.loaded * 100) / (progressEvent.total || 1));
+        console.log(`Download progress: ${progress}%`);
+        if (progress === 100) {
+          setProgress('')
+        } else {
+          setProgress(`${progress}%`)
+        }
+      }
     })
     const content = await resp.data.arrayBuffer()
 
@@ -51,6 +62,7 @@ const Download: React.FC<Props> = ({ file }) => {
     // <div onClick={handleDownload}>{file.name}</div>
     <span className="text-2xl hover:text-sky-500 text-gray-500">
       <DownloadOutlined onClick={handleDownload} />
+      {progress}
     </span>
   )
 }
