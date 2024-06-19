@@ -8,10 +8,12 @@ import rehypeRaw from 'rehype-raw'
 import remarkGfm from 'remark-gfm'
 
 import './markdown.css'
+import { blobToArrayBuffer } from '@/lib/utils'
 
 type Props = {
   file: any
 }
+
 
 const MarkdownPreview: React.FC<Props> = ({ file }) => {
   const [text, setText] = useState<string>('')
@@ -26,7 +28,7 @@ const MarkdownPreview: React.FC<Props> = ({ file }) => {
             }
           : undefined,
       })
-      const content = await resp.data.arrayBuffer()
+      const content = await blobToArrayBuffer(resp.data)
       const textDecoder = new TextDecoder('utf-8')
       let text = textDecoder.decode(content)
       text = `# ${file.name}\n${text}`

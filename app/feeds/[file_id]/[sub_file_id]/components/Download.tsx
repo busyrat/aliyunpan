@@ -1,5 +1,6 @@
 'use client'
 import { copyFile } from '@/app/lib/action'
+import { blobToArrayBuffer } from '@/lib/utils'
 import { DownloadOutlined } from '@ant-design/icons'
 import { Button } from 'antd'
 import axios, { AxiosProgressEvent } from 'axios'
@@ -32,7 +33,7 @@ const Download: React.FC<Props> = ({ file }) => {
         }
       }
     })
-    const content = await resp.data.arrayBuffer()
+    const content = await blobToArrayBuffer(resp.data)
 
     // 创建Blob对象
     const blob = new Blob([content], { type: 'application/octet-stream' });
