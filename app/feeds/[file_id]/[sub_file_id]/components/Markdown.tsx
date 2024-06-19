@@ -17,19 +17,16 @@ type Props = {
 
 const MarkdownPreview: React.FC<Props> = async ({ file }) => {
   const resp = await axios.get(file.link.url, {
-    // nodejs没用
-    responseType: 'blob',
+    // nodejs中如果设置为 blob，则无效
+    // https://stackoverflow.com/questions/60454048/how-does-axios-handle-blob-vs-arraybuffer-as-responsetype
+    responseType: 'arraybuffer',
   })
   
-  // IOS 兼容
-  // const content = await blobToArrayBuffer(resp.data)
-
-  // ONLY 浏览器
+  // 如果 responseType = blob 就需要转义一次
   // const content = await resp.data.arrayBuffer()
-  // const textDecoder = new TextDecoder('utf-8')
-  // let text = textDecoder.decode(content)
+  const textDecoder = new TextDecoder('utf-8')
+  let text = textDecoder.decode(resp.data)
 
-  let text = resp.data
   text = `# ${file.name}\n${text}`
 
   const processedContent = await remark()
