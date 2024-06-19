@@ -57,11 +57,15 @@ class BaseRequest {
   }
   
   private async handleRequest(config: AdaptAxiosRequestConfig): Promise<AdaptAxiosRequestConfig> {
-    const { share_id, share_pwd } = config.data
+    const { share_id, share_pwd, _auth } = config.data
     if (!this.tokenMap[share_id]) {
       await this.refreshToken({ share_id, share_pwd });
     }
     config.headers['X-Share-Token'] = this.tokenMap[share_id]
+
+    if (_auth && this.bearerAuthorization) {
+      config.headers['Authorization'] = `Bearer ${this.bearerAuthorization}`
+    }
 
     return config
   }
@@ -73,7 +77,7 @@ class BaseRequest {
   private async handleResponseError(error: any): Promise<any> {
     const originalRequestConfig = error.config;
     if (!error.response) return Promise.reject(error);
-    console.log('请求失败', error.response);
+    // console.log('请求失败', error.response.data.code);
 
     const { status, data } = error.response;
 
@@ -180,6 +184,7 @@ export const getLink = async ({ share_id, file_id }: {
     file_id,
     // Only ten minutes lifetime
     expire_sec: 600,
+    _auth: true
   })
 
   return res
