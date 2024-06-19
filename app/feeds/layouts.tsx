@@ -1,20 +1,16 @@
 'use client'
 import React, { useState } from 'react';
 import {
-  AuditOutlined
-} from '@ant-design/icons';
-import type { MenuProps } from 'antd';
-import { Breadcrumb, Layout, Menu, theme } from 'antd';
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@/components/ui/resizable"
 import { redirect, useRouter } from 'next/navigation';
 
-const { Header, Content, Footer, Sider } = Layout;
 
-type MenuItem = Required<MenuProps>['items'][number];
-
-const items: MenuItem[] = [
+const items =[
   {
     key: 'feed',
-    icon: <AuditOutlined />,
     label: '订阅'
   }
 ];
@@ -30,17 +26,22 @@ const FeedLayout= (props: { children: React.ReactNode }) => {
   }
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
-      <Sider theme="light" collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
-        <Menu defaultSelectedKeys={['1']} mode="inline" items={items} onClick={handleMenu} />
-      </Sider>
-      <Layout>
-        <Content className="p-4">
-          { children }
-        </Content>
-      </Layout>
-    </Layout>
-  );
+    <ResizablePanelGroup direction="horizontal">
+      <ResizablePanel defaultSize={10} className="m-4">
+        {
+          items.map((item) => (
+            <div key={item.key} onClick={handleMenu}>
+              <div className='flex items-center justify-center border hover:bg-sky-50 cursor-pointer'>{item.label}</div>
+            </div>
+          ))
+        }
+      </ResizablePanel>
+      <ResizableHandle withHandle />
+      <ResizablePanel defaultSize={90} className="m-4">
+        { children }
+      </ResizablePanel>
+    </ResizablePanelGroup>
+  )
 };
 
 export default FeedLayout;

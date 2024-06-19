@@ -1,9 +1,9 @@
 import React, { Suspense } from 'react'
 import { sql } from '@vercel/postgres';
 import { Feed } from '@/app/lib/db';
-
-import FilesTree from './components/Tree';
 import SplitPane from './components/SplitPane';
+import { ScrollArea } from "@/components/ui/scroll-area"
+import FilesTree from './components/Tree';
 
 type Props = {
   children: React.ReactNode,
@@ -26,15 +26,15 @@ const FileLayout: React.FC<Props> = async ({ params, children }) => {
   
   return (
     <div className="w-full h-full">
-      <SplitPane defaultSizes={[300, 1000]} minSize={0} >
-        <div className="h-full overflow-y-auto">
+      <SplitPane>
+        <ScrollArea className="h-full">
           <FilesTree file_id={params.file_id} feedMap={feedMap} />
-        </div>
-        <div className="h-full overflow-y-auto">
+        </ScrollArea>
+        <ScrollArea className="h-full">
           <Suspense fallback={<p>Loading...</p>}>
             { children }
           </Suspense>
-        </div>
+        </ScrollArea>
       </SplitPane>
     </div>
   )

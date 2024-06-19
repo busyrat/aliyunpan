@@ -1,12 +1,13 @@
 'use client'
 import React, { useEffect, useMemo, useState } from 'react';
-import { Button, Form, Input, Modal, Table, Tag, message, type FormInstance } from 'antd';
+import { Form, Input, Modal, Table, Tag, message, type FormInstance } from 'antd';
 import type { TableColumnsType } from 'antd';
 import Link from 'next/link';
 import { createFeed, getFeed, getFeedDiff, getFeedWithRead, getFile, getList, refreshAllFeeds, refreshFeed, removeFeed, updateFileRead } from '@/app/lib/action';
 import { Feed, File } from '@/app/lib/db';
-import { PlusOutlined, ReloadOutlined } from '@ant-design/icons';
+import { LoadingOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 import axios from 'axios';
+import { Button } from "@/components/ui/button"
 
 export interface Row extends Feed {
   mixes: File[]
@@ -143,9 +144,15 @@ const FeedsTable = () => {
   return (
     <div className="w-full">
       {contextHolder}
-      <div className="mb-4">
-        <Button className='mr-1' icon={<PlusOutlined />} onClick={showModal}>新增</Button>
-        <Button loading={loading} icon={<ReloadOutlined />} onClick={handleRefresh}>更新</Button>
+      <div className="mb-4 flex gap-2">
+        <Button onClick={showModal} variant="outline" className='gap-1' >
+          <PlusOutlined />新增
+        </Button>
+        <Button onClick={handleRefresh} variant="outline" className='gap-1'>
+          {
+            loading ? <LoadingOutlined /> : <ReloadOutlined />
+          } 更新
+        </Button>
       </div>
       <Table
         pagination={false}
