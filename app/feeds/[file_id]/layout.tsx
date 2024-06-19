@@ -30,11 +30,11 @@ const FileLayout: React.FC<Props> = async ({ params, children }) => {
         <ScrollArea className="h-full">
           <FilesTree file_id={params.file_id} feedMap={feedMap} />
         </ScrollArea>
-        <ScrollArea className="h-full">
+        <div className="h-full overflow-y-auto">
           <Suspense fallback={<p>Loading...</p>}>
             { children }
           </Suspense>
-        </ScrollArea>
+        </div>
       </SplitPane>
     </div>
   )

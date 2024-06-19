@@ -1,7 +1,5 @@
 import axios from 'axios'
-import React, { useEffect, useState } from 'react'
-import Markdown from 'react-markdown'
-import {Prism as SyntaxHighlighter} from 'react-syntax-highlighter'
+import React from 'react'
 import rehypeRaw from 'rehype-raw'
 import remarkGfm from 'remark-gfm'
 import { remark } from 'remark';
@@ -32,6 +30,7 @@ const MarkdownPreview: React.FC<Props> = async ({ file }) => {
   const processedContent = await remark()
     .use(html)
     .use(remarkGfm)
+    // .use(rehypeRaw)
     .process(text);
   const contentHtml = processedContent.toString();
 
