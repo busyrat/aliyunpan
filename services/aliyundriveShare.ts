@@ -50,7 +50,7 @@ class BaseRequest {
   private async refreshAuthorization() {
     const url = 'https://auth.alipan.com/v2/account/token'
     const res = await axios.post(url, {
-      refresh_token: '973b824ad34241c78ce73e30a41329cb',
+      refresh_token: '370e39e396924c279da72eca55abcebb',
       grant_type: "refresh_token"
     })
     this.bearerAuthorization = res.data.access_token
